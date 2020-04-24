@@ -14,6 +14,20 @@ f. Metode enkripsi pada suatu direktori juga berlaku kedalam direktori lainnya y
 Langkah-langkah :
 - Pertama kami ambil template dari modul, yaitu yang memiliki fuse_operations ``` getattr, readdir, read ```
 - Kami menambahkan fuse_operation yaitu ``` mkdir ``` (agar dapat membuat folder baru), ``` write ``` (agar dapat mengedit file), ``` create ``` (agar dapat membuat file), ``` open ``` (agar dapat membuka file), ``` access ``` (untuk systemcall), ``` utimens ``` (untuk mengupdate last access time yg akan digunakan di nomor 4), dan ``` truncate ``` (dibutuhkan untuk read/write filesystem karena membuat ulang file pertama akan memotongnya/truncate).
+```
+static struct fuse_operations xmp_oper = {
+    .getattr    = xmp_getattr,
+    .readdir    = xmp_readdir,
+    .read       = xmp_read,
+    .mkdir      = xmp_mkdir,
+    .write      = xmp_write,
+	.create     = xmp_create,
+    .open       = xmp_open,
+	.access     = xmp_access,
+	.utimens    = xmp_utimens,
+    .truncate   = xmp_truncate,
+};
+```
 - Membuat enkripsi dan dekripsi sesuai ketentuan dan key-nya
 ```
 void enkrip_1(char *nama){
