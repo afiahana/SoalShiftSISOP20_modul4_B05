@@ -65,3 +65,4 @@ sprintf(cipher, "9(ku@AW1[Lmvgax6q`5Y2Ry?+sF!^HKQiBXCUSe&0M.b%crI'7d)o4~VfZ*{#:}
 - Untuk tiap function xmp_ akan memanggil function dekripsi
 - Untuk function xmp_readdir juga memanggil enkripsi
 - Disini kenapa dekripsi yang dipanggil, karena saat enkripsi yang dipanggil malah salah (harusnya bergerak 10 karakter ke kanan, tetapi malah ke kiri).
+- Mohon maaf kodingannya masi meng-enkripsi semua folder dan file, belum bisa membedakan folder yang ada encv1_ dan yang tidak ada encv1_
