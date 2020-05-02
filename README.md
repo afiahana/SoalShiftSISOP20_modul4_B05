@@ -13,7 +13,7 @@ f. Metode enkripsi pada suatu direktori juga berlaku kedalam direktori lainnya y
 
 Langkah-langkah :
 - Pertama kami ambil template dari modul, yaitu yang memiliki fuse_operations ``` getattr, readdir, read ```
-- Kami menambahkan fuse_operation yaitu ``` mkdir ``` (agar dapat membuat folder baru), ``` write ``` (agar dapat mengedit file), ``` create ``` (agar dapat membuat file), ``` open ``` (agar dapat membuka file), ``` access ``` (untuk systemcall), ``` utimens ``` (untuk mengupdate last access time yg akan digunakan di nomor 4), dan ``` truncate ``` (dibutuhkan untuk read/write filesystem karena membuat ulang file pertama akan memotongnya/truncate).
+- Kami menambahkan fuse_operation yaitu ``` mkdir ``` (agar dapat membuat folder baru), ``` write ``` (agar dapat mengedit file), ``` create ``` (agar dapat membuat file), ``` open ``` (agar dapat membuka file), ``` access ``` (untuk systemcall), ``` utimens ``` (untuk mengupdate last access time yg akan digunakan di nomor 4), ``` truncate ``` (dibutuhkan untuk read/write filesystem karena membuat ulang file pertama akan memotongnya/truncate), ``` rename ``` (agar dapat me-rename file dan folder di filesystem), dan ``` unlink ``` (agar dapat menghapus file dalam filesystem).
 ```
 static struct fuse_operations xmp_oper = {
     .getattr    = xmp_getattr,
@@ -21,18 +21,36 @@ static struct fuse_operations xmp_oper = {
     .read       = xmp_read,
     .mkdir      = xmp_mkdir,
     .write      = xmp_write,
-	.create     = xmp_create,
+    .create     = xmp_create,
     .open       = xmp_open,
-	.access     = xmp_access,
-	.utimens    = xmp_utimens,
+    .access     = xmp_access,
+    .utimens    = xmp_utimens,
     .truncate   = xmp_truncate,
+    .rename	= xmp_rename,
+    .unlink	= xmp_unlink,
 };
 ```
 - Membuat enkripsi dan dekripsi sesuai ketentuan dan key-nya
 ```
+int ext_id(char *path){
+    for(int i = strlen(path) - 1; i >= 0; i--){
+        if(path[i] == '.') return i;
+    }
+    return strlen(path);
+}
+
+int slash_id(char *path, int akhir){
+    for(int i = 0; i < strlen(path); i++){
+        if(path[i] == '/') return i + 1;
+    }
+    return akhir;
+}
+
 void enkrip_1(char *nama){
 	if(!strcmp(nama,".") || !strcmp(nama,"..")) return;
-	for(int i = 0; i < (strlen(nama)); i++){
+    int awalid = slash_id(nama, 0);
+    int akhirid = ext_id(nama);
+	for(int i = awalid; i < akhirid; i++){
 		if(nama[i]!='/'){
 			for(int j = 0; j < (strlen(cipher)); j++){
 				if(cipher[j] == nama[i]){
@@ -47,7 +65,9 @@ void enkrip_1(char *nama){
 
 void dekrip_1(char *nama){
 	if(!strcmp(nama,".") || !strcmp(nama,"..")) return;
-	for(int i = 0; i < (strlen(nama)); i++){
+    int awalid = slash_id(nama, 0);
+    int akhirid = ext_id(nama);
+	for(int i = awalid; i < akhirid; i++){
 		if(nama[i]!='/'){
 			for(int j = 0; j < (strlen(cipher)); j++){
 				if(cipher[j] == nama[i]){
@@ -64,8 +84,7 @@ sprintf(cipher, "9(ku@AW1[Lmvgax6q`5Y2Ry?+sF!^HKQiBXCUSe&0M.b%crI'7d)o4~VfZ*{#:}
 ```
 - Untuk tiap function xmp_ akan memanggil function dekripsi
 - Untuk function xmp_readdir juga memanggil enkripsi
-- Disini kenapa dekripsi yang dipanggil, karena saat enkripsi yang dipanggil malah salah (harusnya bergerak 10 karakter ke kanan, tetapi malah ke kiri).
-- Mohon maaf kodingannya masi meng-enkripsi semua folder dan file, belum bisa membedakan folder yang ada encv1_ dan yang tidak ada encv1_
+- Dekripsi dipanggil karena saat mengakses sesuatu di fuse, maka di directory asli akan dilakukan hal yang sama (akses/edit/hapus) maka dari itu dekrip dulu agar bisa akses di file asli.
 
 ### 4. Membuat Log
 
