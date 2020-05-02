@@ -66,3 +66,40 @@ sprintf(cipher, "9(ku@AW1[Lmvgax6q`5Y2Ry?+sF!^HKQiBXCUSe&0M.b%crI'7d)o4~VfZ*{#:}
 - Untuk function xmp_readdir juga memanggil enkripsi
 - Disini kenapa dekripsi yang dipanggil, karena saat enkripsi yang dipanggil malah salah (harusnya bergerak 10 karakter ke kanan, tetapi malah ke kiri).
 - Mohon maaf kodingannya masi meng-enkripsi semua folder dan file, belum bisa membedakan folder yang ada encv1_ dan yang tidak ada encv1_
+
+### 4. Membuat Log
+
+Menaruh log INFO di fungsi MKDIR dan lainnya Pada fungsi MKDIR dan mendeklarasikan array desc, di bagian sprintf melakukan penggabungan dimana fpath yang berformat %s (berisi nama file) digabung dengan WRITE, hasil dari penggabungan tersebut akan disimpan di variabel desc. Kemudian memanggil fungsi writeLog untuk mempassing log pada parameter yang berupa INFO serta parameter kedua yaitu hasil concate format WRITE dan nama path file yang disimpan di dalam array desc. Fungsi MKDIR tersebut tercatat pada file yang bernama fs.log jika kita membaca isi.
+```
+char desc[100];
+sprintf(desc, "READ::%s", fpath);
+writeLog("INFO", desc);
+```
+Fungsi log_path berfungsi untuk menyimpan nama path file yang akan digunakan untuk membuat file fs.log.
+```
+static const char *logpath = "/home/kazuhiko/fs.log";
+```
+Untuk membuat fs.log, fungsi yang digunakan adalah writeLog().
+Fungsi writeLog() dipanggil oleh fungsi fungsi FUSE yang berhubungan dengan modifikasi file untuk mencatat semua modifikasi yang telah terjadi.
+Fungsi writeLog() adalah fungsi yang menuliskan log dengan format [LEVEL]::[yy][mm][dd]-[HH]:[MM]:[SS]::[CMD]::[DESC] di /home/kazuhiko/fs.log.
+
+```
+void writeLog(char *level, char *cmd_desc)
+{
+  FILE * fp;
+  fp = fopen (log_path, "a+");
+
+  time_t rawtime = time(NULL);
+  
+  struct tm *info = localtime(&rawtime);
+  
+  char time[100];
+  strftime(time, 100, "%y%m%d-%H:%M:%S", info);
+
+  char log[100];
+  sprintf(log, "%s::%s::%s\n", level, time, cmd_desc);
+  fputs(log, fp);
+
+  fclose(fp);
+}
+```
