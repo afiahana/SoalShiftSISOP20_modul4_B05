@@ -20,6 +20,7 @@ static struct fuse_operations xmp_oper = {
     .readdir    = xmp_readdir,
     .read       = xmp_read,
     .mkdir      = xmp_mkdir,
+    .rmdir	= xmp_rmdir,
     .write      = xmp_write,
     .create     = xmp_create,
     .open       = xmp_open,
