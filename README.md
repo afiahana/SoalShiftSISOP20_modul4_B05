@@ -66,8 +66,9 @@ void enkrip_1(char *nama){
 
 void dekrip_1(char *nama){
 	if(!strcmp(nama,".") || !strcmp(nama,"..")) return;
-    int awalid = slash_id(nama, 0);
     int akhirid = ext_id(nama);
+    int awalid = slash_id(nama, akhirid);
+    
 	for(int i = awalid; i < akhirid; i++){
 		if(nama[i]!='/'){
 			for(int j = 0; j < (strlen(cipher)); j++){
